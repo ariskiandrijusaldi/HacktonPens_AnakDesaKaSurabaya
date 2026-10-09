@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'campuscare' => [
+        'url' => env('CAMPUSCARE_URL', 'http://localhost:8001'),
+    ],
+
 ];
