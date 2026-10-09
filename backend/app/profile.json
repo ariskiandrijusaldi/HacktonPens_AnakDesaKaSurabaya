@@ -1,0 +1,77 @@
+{
+  "title": "Profil Satgas PPKS Kampus",
+  "tagline": "Hadir untuk melindungi, mendampingi, dan memulihkan korban kekerasan seksual di lingkungan kampus.",
+  "sections": [
+    {
+      "title": "Sekilas",
+      "paragraphs": [
+        "Satgas Pencegahan dan Penanganan Kekerasan Seksual (PPKS) adalah unit di lingkungan perguruan tinggi yang dibentuk untuk mencegah, menangani, melindungi, dan memulihkan korban serta mencegah terulangnya kekerasan seksual.",
+        "Satgas bekerja secara mandiri, rahasia, dan berpihak pada korban. Seluruh proses penanganan menghormati keputusan dan kesiapan pelapor. Pelapor tidak wajib mengungkap identitas dan boleh melapor secara anonim."
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Dasar Hukum",
+      "paragraphs": [],
+      "bullets": [
+        "Permendikbudristek No. 30 Tahun 2021 tentang Pencegahan dan Penanganan Kekerasan Seksual di Lingkungan Perguruan Tinggi.",
+        "UU No. 12 Tahun 2022 tentang Tindak Pidana Kekerasan Seksual (TPKS).",
+        "Peraturan rektor/kebijakan internal perguruan tinggi tentang pembentukan Satgas PPKS."
+      ]
+    },
+    {
+      "title": "Tugas & Fungsi",
+      "paragraphs": [],
+      "bullets": [
+        "Menerima, memeriksa, dan menindaklanjuti laporan dugaan kekerasan seksual.",
+        "Memberikan pendampingan psikologis, medis, hukum, dan akademik kepada korban.",
+        "Menyelenggarakan pencegahan berupa edukasi, sosialisasi, dan kampanye anti-kekerasan seksual.",
+        "Menjaga kerahasiaan data dan identitas pelapor serta terlapor selama proses berlangsung.",
+        "Memantau dan mengevaluasi penanganan kasus serta mencegah terjadinya pengulangan."
+      ]
+    },
+    {
+      "title": "Visi",
+      "paragraphs": [
+        "Terwujudnya lingkungan kampus yang aman, setara, bermartabat, dan bebas dari kekerasan seksual."
+      ],
+      "bullets": []
+    },
+    {
+      "title": "Misi",
+      "paragraphs": [],
+      "bullets": [
+        "Menyediakan kanal pelaporan yang aman, mudah, dan anonim.",
+        "Menangani setiap laporan secara cepat, adil, rahasia, dan berpihak pada korban.",
+        "Memperkuat pendampingan dan pemulihan korban.",
+        "Membangun budaya dan mekanisme pencegahan yang berkelanjutan bersama seluruh sivitas kampus."
+      ]
+    },
+    {
+      "title": "Asas & Prinsip",
+      "paragraphs": [],
+      "bullets": [
+        "Kerahasiaan dan perlindungan privasi.",
+        "Keberpihakan pada korban (victim-centered).",
+        "Non-diskriminasi dan kesetaraan gender.",
+        "Penghormatan pada persetujuan dan kesiapan korban.",
+        "Akuntabilitas serta transparansi kepada pihak-pihak terkait."
+      ]
+    }
+  ],
+  "members": [
+    { "name": "Dr. Sri Handayani, M.H.", "role": "Ketua Satgas", "unit": "Koordinator penanganan" },
+    { "name": "Bimantoro Adi, S.Psi., M.A.", "role": "Sekretaris", "unit": "Administrasi & dokumentasi" },
+    { "name": "Retno Wulandari, S.Psi.", "role": "Pendamping Psikologis", "unit": "Konseling & pemulihan" },
+    { "name": "Ahmad Fauzi, S.H.", "role": "Pendamping Hukum", "unit": "Pendampingan proses formal" },
+    { "name": "Putri Andini, S.KM.", "role": "Anggota", "unit": "Pencegahan & edukasi" },
+    { "name": "Yusuf Maulana, S.Kom.", "role": "Anggota", "unit": "Kanal pelaporan & data" }
+  ],
+  "contacts": [
+    { "label": "Sekretariat", "value": "Gedung Rektorat, Lantai 2, Ruang 204" },
+    { "label": "Email", "value": "satgasppks@kampus.example.ac.id" },
+    { "label": "Telepon", "value": "0800-0000-0000" },
+    { "label": "Jam Layanan", "value": "Senin - Jumat, 08.00 - 16.00 WIB" },
+    { "label": "Lapor Daring", "value": "24 jam (anonim, melalui beranda)" }
+  ]
+}

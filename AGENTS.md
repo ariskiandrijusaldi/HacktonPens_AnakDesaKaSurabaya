@@ -1,47 +1,100 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# HacktonPens_AnakDesaKaSurabaya Project
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+This repository contains a full-stack application for Anak Desa Ka Surabaya, featuring:
+- Laravel backend (PHP) for the main web application
+- FastAPI backend (Python) for the anonymous reporting system
+- Vite frontend (JavaScript/TypeScript)
 
-## Prerequisites
+## Project Structure
 
-Verify that PHP and Composer are available:
+### Main Components
+- `backend/` - FastAPI Python backend for anonymous reporting system
+- `app/` - Laravel PHP backend for main web application  
+- `resources/` - Frontend assets and views
+- `public/` - Public web assets
 
-```sh
-php -v
-composer -V
+## Key Commands
+
+### Backend Setup
+```bash
+# Laravel backend setup
+composer install
+php artisan key:generate
+php artisan migrate --force
+npm install --ignore-scripts
+npm run build
+
+# FastAPI backend setup (in backend/ directory)
+python -m venv .venv
+# Windows: .venv\Scripts\Activate.ps1
+# Linux/macOS: source .venv/bin/activate
+pip install -r requirements.txt
+python generate_keys.py
 ```
 
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
+### Running Applications
+```bash
+# Laravel development server
+php artisan serve
 
-macOS:
+# FastAPI development server (in backend/ directory)
+uvicorn app.main:app --reload
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
+# Frontend development
+npm run dev
 ```
 
-Windows PowerShell:
+### Testing
+```bash
+# Laravel tests
+php artisan test
 
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
+# FastAPI tests (in backend/ directory)
+pytest -q
 ```
 
-Linux:
+## Framework Details
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
-```
+### Laravel (PHP)
+- Uses SQLite by default (see config/database.php)
+- Session storage in database (SESSION_DRIVER=database)
+- Cache storage in database (CACHE_STORE=database)
+- Application runs on port 8000 by default (APP_URL=http://localhost:8000)
 
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
+### FastAPI (Python)
+- Uses SQLite by default (DATABASE_URL)
+- Requires Python 3.11+
+- Uses Fernet encryption for sensitive data
+- Implements HMAC for reporter identification
+- JWT authentication for officers
+- Rate limiting and security measures
 
-## Agent Setup
+## Environment Configuration
 
-Install Laravel Boost from the application root before making application changes:
+### Laravel
+- Copy `.env.example` to `.env` and configure database settings
+- Default database is SQLite (`DB_CONNECTION=sqlite`)
 
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
+### FastAPI
+- Copy `.env.example` to `.env` and configure encryption keys
+- Requires ENCRYPTION_KEY, HMAC_KEY, JWT_SECRET, OVERRIDE_PIN, ADMIN_PASSWORD, MEMBER_PASSWORD
+- Optional GEMINI_API_KEY for AI triage functionality
 
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+## Development Workflow
+
+1. Start Laravel backend: `php artisan serve`
+2. Start FastAPI backend: `uvicorn app.main:app --reload` (in backend/)
+3. Start frontend: `npm run dev`
+4. Run tests: `php artisan test` or `pytest -q` (in backend/)
+
+## Important Notes
+
+- The Laravel application uses SQLite by default for simplicity
+- The FastAPI application implements strong privacy protections for reporters
+- Both backends have separate database configurations and setup requirements
+- The frontend uses Vite for development and build processes
+- FastAPI requires Windows PowerShell activation script: `.venv\Scripts\Activate.ps1` for virtual environment
+- FastAPI uses in-memory rate limiting and lockout mechanisms
+- FastAPI uses HMAC for reporter anonymity and Fernet for data encryption
+- FastAPI stores reports with encrypted original text and contact information
+- FastAPI requires specific environment variables for security features to work properly

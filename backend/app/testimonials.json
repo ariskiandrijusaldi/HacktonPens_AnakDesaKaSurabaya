@@ -1,0 +1,126 @@
+{
+  "title": "Testimoni",
+  "intro": "Ucapan dan pengalaman dari pelapor yang telah menggunakan layanan Satgas PPKS. Seluruh testimoni disajikan secara anonim dan telah melalui persetujuan; tidak ada identitas maupun detail kasus yang diungkap.",
+  "items": [
+    {
+      "id": "T-2026-0012",
+      "date": "2026-06-24",
+      "author_alias": "Pelapor anonim",
+      "title": "Respons cepat pada laporan prioritas",
+      "message": "Terima kasih, laporan saya ditindaklanjuti dengan sangat cepat. Saya merasa benar-benar didengar dan tidak sendirian.",
+      "tags": ["Respons cepat", "Empati"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2026-0011",
+      "date": "2026-04-01",
+      "author_alias": "Mahasiswi, Fakultas Teknik",
+      "title": "Kerahasiaan terjaga",
+      "message": "Saya takut identitas saya terbuka, tetapi prosesnya benar-benar rahasia. Saya bisa melapor tanpa merasa terancam.",
+      "tags": ["Kerahasiaan"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2025-0108",
+      "date": "2025-11-17",
+      "author_alias": "Pelapor anonim",
+      "title": "Didampingi sampai proses konseling",
+      "message": "Pendampingan psikologis sangat membantu saya pulih. Satgas tidak memaksa saya memilih langkah yang tidak siap saya jalani.",
+      "tags": ["Pendampingan psikologis", "Diproses"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2025-0075",
+      "date": "2025-08-30",
+      "author_alias": "Mahasiswa",
+      "title": "Pola terlapor terdeteksi",
+      "message": "Saya lega karena laporan saya ternyata terhubung dengan laporan lain. Terlapor yang sama akhirnya ditangani secara serius.",
+      "tags": ["Diproses", "Perlindungan"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2025-0042",
+      "date": "2025-05-12",
+      "author_alias": "Alumni",
+      "title": "Tidak dihakimi",
+      "message": "Saya takut disalahkan, tetapi Satgas menerima saya tanpa menghakimi. Saya akhirnya berani bercerita sepenuhnya.",
+      "tags": ["Empati", "Kerahasiaan"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2025-0019",
+      "date": "2025-03-03",
+      "author_alias": "Pelapor anonim",
+      "title": "Pendampingan hukum yang jelas",
+      "message": "Proses formal terasa menakutkan, tetapi saya didampingi step by step sampai saya paham setiap tahapannya.",
+      "tags": ["Didampingi hukum", "Diproses"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2024-0150",
+      "date": "2024-12-08",
+      "author_alias": "Staf administrasi",
+      "title": "Kanal anonim yang mudah",
+      "message": "Melapor tanpa login dan tanpa memberi nama membuat saya berani mengambil langkah pertama. Terima kasih.",
+      "tags": ["Kerahasiaan", "Respons cepat"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2024-0117",
+      "date": "2024-10-21",
+      "author_alias": "Mahasiswa",
+      "title": "Status laporan transparan",
+      "message": "Saya bisa memantau perkembangan laporan lewat kode tiket, jadi tidak merasa gelap dan terus menunggu tanpa kabar.",
+      "tags": ["Diproses"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2024-0093",
+      "date": "2024-07-15",
+      "author_alias": "Pelapor anonim",
+      "title": "Aman untuk bercerita",
+      "message": "Ruang pelaporannya terasa aman. Saya bisa berhenti kapan saja dan melanjutkan lagi ketika sudah siap.",
+      "tags": ["Empati", "Kerahasiaan"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2024-0058",
+      "date": "2024-04-02",
+      "author_alias": "Mahasiswi, Fakultas Ilmu Sosial",
+      "title": "Pulih dengan pendampingan",
+      "message": "Terima kasih sudah menemani masa sulit saya. Saya kembali bisa fokus kuliah karena merasa terlindungi.",
+      "tags": ["Pendampingan psikologis", "Perlindungan"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2023-0210",
+      "date": "2023-11-27",
+      "author_alias": "Pelapor anonim",
+      "title": "Proses yang berpihak pada korban",
+      "message": "Yang paling saya hargai: setiap keputusan diambil dengan persetujuan saya, bukan dipaksakan.",
+      "tags": ["Perlindungan", "Empati"],
+      "media_type": "none",
+      "media_url": ""
+    },
+    {
+      "id": "T-2023-0184",
+      "date": "2023-09-09",
+      "author_alias": "Mahasiswa",
+      "title": "Ditangani tanpa menunda",
+      "message": "Laporan saya langsung ditindaklanjuti dan saya dihubungkan dengan layanan yang tepat. Sangat menolong.",
+      "tags": ["Respons cepat", "Diproses"],
+      "media_type": "none",
+      "media_url": ""
+    }
+  ]
+}
