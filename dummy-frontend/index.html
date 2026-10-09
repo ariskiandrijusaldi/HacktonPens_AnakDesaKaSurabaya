@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dummy Frontend — Agen Satgas PPKS</title>
+<style>
+  :root { --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --line:#334155; --txt:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --ok:#22c55e; --warn:#eab308; --bad:#ef4444; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); }
+  header { display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:12px 18px; background:var(--panel); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:5; }
+  header h1 { font-size:15px; margin:0; }
+  header input { background:var(--panel2); border:1px solid var(--line); color:var(--txt); padding:6px 10px; border-radius:6px; width:240px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:var(--muted); display:inline-block; }
+  .dot.up { background:var(--ok); } .dot.down { background:var(--bad); }
+  main { max-width:1100px; margin:0 auto; padding:18px; }
+  .tabs { display:flex; gap:8px; margin-bottom:16px; }
+  .tabs button { padding:8px 16px; border:1px solid var(--line); background:var(--panel); color:var(--muted); border-radius:8px; cursor:pointer; }
+  .tabs button.active { background:var(--accent); color:#06283a; border-color:var(--accent); font-weight:600; }
+  section.pane { display:none; } section.pane.active { display:block; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:16px; }
+  .card h2 { margin:0 0 12px; font-size:14px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); }
+  label { display:block; font-size:12px; color:var(--muted); margin:10px 0 4px; }
+  input, textarea, select { width:100%; background:var(--panel2); border:1px solid var(--line); color:var(--txt); padding:8px 10px; border-radius:8px; font:inherit; }
+  textarea { min-height:90px; resize:vertical; }
+  button.act { margin-top:12px; padding:9px 18px; background:var(--accent); color:#06283a; border:0; border-radius:8px; font-weight:600; cursor:pointer; }
+  button.act.ghost { background:transparent; color:var(--txt); border:1px solid var(--line); }
+  button.act:disabled { opacity:.5; cursor:not-allowed; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .row > div { flex:1; min-width:140px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { text-align:left; padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  tr.clickable { cursor:pointer; } tr.clickable:hover { background:var(--panel2); }
+  .badge { padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; }
+  .MERAH { background:#7f1d1d; color:#fecaca; } .KUNING { background:#78350f; color:#fde68a; } .HIJAU { background:#14532d; color:#bbf7d0; }
+  .ticket { font-family:ui-monospace,Consolas,monospace; font-size:18px; color:var(--ok); background:#052e16; padding:10px 14px; border-radius:8px; display:inline-block; margin-top:8px; }
+  .pill { display:inline-block; font-size:11px; padding:2px 8px; border-radius:999px; background:var(--panel2); color:var(--muted); margin-right:4px; }
+  pre.log { background:#020617; border:1px solid var(--line); border-radius:8px; padding:10px; font-size:12px; max-height:260px; overflow:auto; white-space:pre-wrap; }
+  .msg { border-left:3px solid var(--line); padding:6px 10px; margin:6px 0; background:var(--panel2); border-radius:0 8px 8px 0; }
+  .msg.SATGAS { border-left-color:var(--accent); } .msg.PELAPOR { border-left-color:var(--warn); }
+  .hint { font-size:12px; color:var(--muted); } .danger { color:#fecaca; background:#450a0a; padding:10px; border-radius:8px; font-size:13px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; } @media(max-width:800px){ .grid2{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<header>
+  <h1>🛡️ Dummy Frontend — Agen Satgas PPKS</h1>
+  <span class="dot" id="apiDot"></span>
+  <input id="apiBase" value="http://localhost:8000" />
+</header>
+
+<main>
+  <div class="tabs">
+    <button data-tab="pelapor" class="active">Pelapor (publik)</button>
+    <button data-tab="prosedur">Prosedur Pelaporan</button>
+    <button data-tab="testimoni">Testimoni</button>
+    <button data-tab="profil">Profil Satgas</button>
+    <button data-tab="petugas">Petugas (Satgas)</button>
+  </div>
+
+  <!-- ================= PELAPOR ================= -->
+  <section class="pane active" id="tab-pelapor">
+    <div class="card" id="homeProfile"><p class="hint">Memuat profil Satgas...</p></div>
+    <div class="grid2">
+      <div class="card">
+        <h2>Buat Laporan Anonim</h2>
+        <label>Teks laporan (20–10.000 karakter)</label>
+        <textarea id="rText">Saya diancam oleh seseorang di kampus tadi malam dan sangat takut keluar kamar kos.</textarea>
+        <div class="row">
+          <div>
+            <label>Keinginan</label>
+            <select id="rWish">
+              <option>KONSULTASI</option><option>PENDAMPINGAN</option><option>PROSES_FORMAL</option><option>BELUM_TAHU</option>
+            </select>
+          </div>
+          <div>
+            <label>Lokasi umum (opsional)</label>
+            <input id="rLocation" value="Gedung B Fakultas Teknik" />
+          </div>
+        </div>
+        <label>Kontak opsional (opt-in)</label>
+        <input id="rContact" value="081234567890" />
+        <label>Lampiran (maks 3; jpg/png/pdf ≤5MB)</label>
+        <input id="rFiles" type="file" multiple accept="image/jpeg,image/png,application/pdf" />
+        <label style="display:flex;gap:8px;align-items:center;margin-top:12px;">
+          <input type="checkbox" id="rConsent" checked style="width:auto;" /> Saya menyetujui laporan diproses Satgas
+        </label>
+        <button class="act" id="btnCreate">Kirim Laporan</button>
+        <div id="createResult"></div>
+      </div>
+
+      <div class="card">
+        <h2>Lacak Tiket</h2>
+        <label>Ticket code</label>
+        <input id="tCode" placeholder="PPKS-XXXXXX-XXXXXX" />
+        <button class="act ghost" id="btnGetTicket">Cek Status</button>
+        <div id="ticketView"></div>
+        <label>Balas ke Satgas (≤2000)</label>
+        <textarea id="tMsg" style="min-height:60px;">Terima kasih, saya sedang di tempat aman.</textarea>
+        <button class="act" id="btnSendMsg">Kirim Pesan</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Bantuan Darurat</h2>
+      <button class="act ghost" id="btnHelp">Muat Sumber Daya</button>
+      <div id="helpView"></div>
+    </div>
+  </section>
+
+  <!-- ================= PROSEDUR ================= -->
+  <section class="pane" id="tab-prosedur">
+    <div class="card">
+      <h2 id="procTitle">Prosedur Pelaporan</h2>
+      <p id="procIntro" class="hint" style="margin-top:0;"></p>
+      <div id="procView"><p class="hint">Memuat...</p></div>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONI ================= -->
+  <section class="pane" id="tab-testimoni">
+    <div class="card">
+      <h2 id="testiTitle">Testimoni</h2>
+      <p id="testiIntro" class="hint" style="margin-top:0;"></p>
+      <div id="testiView"><p class="hint">Memuat...</p></div>
+      <div id="testiPager" style="margin-top:12px;"></div>
+    </div>
+  </section>
+
+  <!-- ================= PROFIL ================= -->
+  <section class="pane" id="tab-profil">
+    <div class="card">
+      <h2 id="profTitle">Profil Satgas PPKS</h2>
+      <p id="profTagline" class="hint" style="margin-top:0;"></p>
+      <div id="profView"><p class="hint">Memuat...</p></div>
+    </div>
+  </section>
+
+  <!-- ================= PETUGAS ================= -->
+  <section class="pane" id="tab-petugas">
+    <div class="card" id="loginCard">
+      <h2>Login Petugas</h2>
+      <div class="row">
+        <div><label>Username</label><input id="lUser" value="admin" /></div>
+        <div><label>Password</label><input id="lPass" type="password" value="adminpass123" /></div>
+        <div><label>Kode 2FA (opsional)</label><input id="lTotp" /></div>
+      </div>
+      <button class="act" id="btnLogin">Masuk</button>
+      <span class="hint" id="loginState" style="margin-left:12px;"></span>
+    </div>
+
+    <div id="officerArea" style="display:none;">
+      <div class="card">
+        <h2>Daftar Laporan</h2>
+        <div class="row">
+          <div><label>Urgensi</label><select id="fUrgency"><option value="">(semua)</option><option>MERAH</option><option>KUNING</option><option>HIJAU</option></select></div>
+          <div><label>Status</label><select id="fStatus"><option value="">(semua)</option><option>MENUNGGU_TIM</option><option>SEDANG_DIDAMPINGI</option><option>SELESAI</option></select></div>
+          <div><label>Cari (q)</label><input id="fQ" /></div>
+          <div><label>Lokasi</label><input id="fLoc" /></div>
+        </div>
+        <button class="act" id="btnList">Muat</button>
+        <button class="act ghost" id="btnStats">Statistik</button>
+        <button class="act ghost" id="btnPatterns">Pola Terlapor</button>
+        <button class="act ghost" id="btnAudit">Audit Log</button>
+        <div id="listOut" style="margin-top:12px;"></div>
+        <div id="statsOut" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="card" id="detailCard" style="display:none;"></div>
+    </div>
+  </section>
+
+  <div class="card">
+    <h2>Log Respons API</h2>
+    <pre class="log" id="log">siap.</pre>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const api = () => $('apiBase').value.replace(/\/$/, '');
+let token = null, role = null, currentId = null;
+
+function log(label, data) {
+  const t = new Date().toLocaleTimeString();
+  $('log').textContent = `[${t}] ${label}\n` + (typeof data === 'string' ? data : JSON.stringify(data, null, 2)) + '\n\n' + $('log').textContent;
+}
+
+async function http(path, { method = 'GET', json, form, auth = true } = {}) {
+  const headers = {};
+  if (auth && token) headers['Authorization'] = 'Bearer ' + token;
+  let body;
+  if (json) { headers['Content-Type'] = 'application/json'; body = JSON.stringify(json); }
+  if (form) { body = form; }
+  const res = await fetch(api() + path, { method, headers, body });
+  const text = await res.text();
+  let data; try { data = JSON.parse(text); } catch { data = text; }
+  log(`${method} ${path} → ${res.status}`, data);
+  if (!res.ok) throw Object.assign(new Error('HTTP ' + res.status), { status: res.status, data });
+  return data;
+}
+
+// cek koneksi
+(async () => {
+  try { const r = await fetch(api() + '/up'); $('apiDot').className = 'dot ' + (r.ok ? 'up' : 'down'); }
+  catch { $('apiDot').className = 'dot down'; }
+})();
+$('apiBase').addEventListener('change', async () => {
+  try { const r = await fetch(api() + '/up'); $('apiDot').className = 'dot ' + (r.ok ? 'up' : 'down'); } catch { $('apiDot').className = 'dot down'; }
+});
+
+// tabs
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  $('tab-' + b.dataset.tab).classList.add('active');
+  if (b.dataset.tab === 'prosedur' && !$('procView').dataset.loaded) { loadProcedures(); $('procView').dataset.loaded = '1'; }
+  if (b.dataset.tab === 'testimoni' && !$('testiView').dataset.loaded) { loadTestimonials(1); $('testiView').dataset.loaded = '1'; }
+});
+
+// ---------------- PROSEDUR ----------------
+async function loadProcedures() {
+  try {
+    const p = await http('/api/procedures', { auth: false });
+    $('procTitle').textContent = p.title;
+    $('procIntro').textContent = p.intro;
+    const steps = (p.steps || []).map(s => `<div class="msg"><b>${s.order}. ${esc(s.title)}</b><br>${esc(s.description)}</div>`).join('');
+    const reqs = (p.requirements || []).map(r => `<li>${esc(r)}</li>`).join('');
+    const chans = (p.channels || []).map(c => `<div class="msg"><b>${esc(c.name)}</b> <span class="pill">${esc(c.kind)}</span><br><span class="hint">${esc(c.description)}</span>${c.url ? `<br><a style="color:var(--accent)" href="${esc(c.url)}" target="_blank" rel="noreferrer">${esc(c.url)}</a>` : ''}${c.kind === 'form' ? ' <button class="act ghost" id="procGoLapor" style="margin-top:8px;">Ajukan Laporan Sekarang</button>' : ''}</div>`).join('');
+    const commits = (p.commitments || []).map(c => `<div class="msg">✅ <b>${esc(c.label)}:</b> ${esc(c.value)}</div>`).join('');
+    const legal = (p.legal_basis || []).map(l => `<li>${esc(l)}</li>`).join('');
+    const faq = (p.faq || []).map(f => `<div class="msg"><b>${esc(f.question)}</b><br><span class="hint">${esc(f.answer)}</span></div>`).join('');
+    $('procView').innerHTML = `
+      <h2>Tahapan</h2>${steps}
+      <h2 style="margin-top:18px;">Persyaratan</h2><ul>${reqs}</ul>
+      <h2 style="margin-top:18px;">Kanal Pengaduan</h2>${chans}
+      <h2 style="margin-top:18px;">Komitmen Layanan</h2>${commits}
+      <h2 style="margin-top:18px;">Dasar Hukum</h2><ul>${legal}</ul>
+      <h2 style="margin-top:18px;">Pertanyaan Umum (FAQ)</h2>${faq}`;
+    const go = $('procGoLapor');
+    if (go) go.onclick = () => document.querySelector('[data-tab="pelapor"]').click();
+  } catch (e) {
+    $('procView').innerHTML = `<p class="danger">${esc(e.data?.detail || e.message)}</p>`;
+  }
+}
+
+// ---------------- TESTIMONI ----------------
+async function loadTestimonials(page = 1) {
+  try {
+    const p = await http('/api/testimonials?page=' + page + '&limit=6', { auth: false });
+    $('testiTitle').textContent = p.title;
+    $('testiIntro').textContent = p.intro;
+    $('testiView').innerHTML = (p.items || []).map(t => `<div class="msg">
+      <b>${esc(t.title)}</b> <span class="pill">${esc(t.author_alias)}</span> <span class="pill">${esc(t.date)}</span>
+      ${t.media_url ? `<br><a style="color:var(--accent)" href="${esc(t.media_url)}" target="_blank" rel="noreferrer">lihat media</a>` : ''}
+      <br>${esc(t.message)}
+      <br>${(t.tags || []).map(x => `<span class="pill">#${esc(x)}</span>`).join(' ')}
+    </div>`).join('') || '<p class="hint">Belum ada testimoni.</p>';
+    const pages = Math.max(1, Math.ceil(p.total / p.limit));
+    $('testiPager').innerHTML = `<span class="hint">Halaman ${p.page} / ${pages} · total ${p.total}</span>
+      ${p.page > 1 ? '<button class="act ghost" id="tPrev">‹ Sebelumnya</button>' : ''}
+      ${p.page < pages ? '<button class="act ghost" id="tNext">Berikutnya ›</button>' : ''}`;
+    const prev = $('tPrev'); if (prev) prev.onclick = () => loadTestimonials(p.page - 1);
+    const next = $('tNext'); if (next) next.onclick = () => loadTestimonials(p.page + 1);
+  } catch (e) {
+    $('testiView').innerHTML = `<p class="danger">${esc(e.data?.detail || e.message)}</p>`;
+  }
+}
+
+// ---------------- PROFIL ----------------
+async function loadProfile() {
+  try {
+    const p = await http('/api/profile', { auth: false });
+    $('homeProfile').innerHTML = `<h2>${esc(p.title)}</h2><p style="margin:6px 0 12px;">${esc(p.tagline)}</p><button class="act ghost" id="goProfil">Lihat Profil Lengkap →</button>`;
+    $('goProfil').onclick = () => document.querySelector('[data-tab="profil"]').click();
+    $('profTitle').textContent = p.title;
+    $('profTagline').textContent = p.tagline;
+    const secs = (p.sections || []).map(s => `<h2 style="margin-top:18px;">${esc(s.title)}</h2>
+      ${(s.paragraphs || []).map(x => `<p>${esc(x)}</p>`).join('')}
+      ${(s.bullets || []).length ? `<ul>${(s.bullets || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`).join('');
+    const members = (p.members || []).length ? `<h2 style="margin-top:18px;">Struktur Satgas</h2><table><thead><tr><th>Nama</th><th>Peran</th><th>Bidang</th></tr></thead><tbody>${p.members.map(m => `<tr><td>${esc(m.name)}</td><td>${esc(m.role)}</td><td>${esc(m.unit)}</td></tr>`).join('')}</tbody></table>` : '';
+    const contacts = (p.contacts || []).length ? `<h2 style="margin-top:18px;">Kontak</h2>${p.contacts.map(c => `<div class="msg"><b>${esc(c.label)}:</b> ${esc(c.value)}</div>`).join('')}` : '';
+    $('profView').innerHTML = secs + members + contacts;
+  } catch (e) {
+    $('profView').innerHTML = `<p class="danger">${esc(e.data?.detail || e.message)}</p>`;
+  }
+}
+
+// ---------------- PELAPOR ----------------
+$('btnCreate').onclick = async () => {
+  try {
+    const fd = new FormData();
+    fd.append('text', $('rText').value);
+    fd.append('victim_wish', $('rWish').value);
+    fd.append('consent', $('rConsent').checked ? 'true' : 'false');
+    if ($('rLocation').value) fd.append('location', $('rLocation').value);
+    if ($('rContact').value) fd.append('contact', $('rContact').value);
+    for (const f of $('rFiles').files) fd.append('files', f);
+    const r = await http('/api/reports', { method: 'POST', form: fd });
+    $('createResult').innerHTML = `<p class="hint">Simpan kode ini!</p><div class="ticket">${esc(r.ticket_code)}</div>`;
+    $('tCode').value = r.ticket_code;
+  } catch (e) {
+    $('createResult').innerHTML = `<p class="danger">${esc(e.data?.detail || e.message)}</p>`;
+  }
+};
+
+$('btnGetTicket').onclick = async () => {
+  try {
+    const r = await http('/api/tickets/' + encodeURIComponent($('tCode').value.trim()), { auth: false });
+    const msgs = (r.messages || []).map(m => `<div class="msg ${esc(m.sender)}"><b>${esc(m.sender)}</b> · ${esc(new Date(m.created_at).toLocaleString())}<br>${esc(m.body)}</div>`).join('') || '<p class="hint">Belum ada pesan dari Satgas.</p>';
+    $('ticketView').innerHTML = `<p><span class="pill">status: ${esc(r.status)}</span><span class="pill">update: ${esc(new Date(r.updated_at).toLocaleString())}</span></p>${msgs}`;
+  } catch (e) { $('ticketView').innerHTML = `<p class="danger">${esc(e.data?.detail || e.message)}</p>`; }
+};
+
+$('btnSendMsg').onclick = async () => {
+  try { await http('/api/tickets/' + encodeURIComponent($('tCode').value.trim()) + '/messages', { method: 'POST', json: { body: $('tMsg').value }, auth: false }); $('btnGetTicket').click(); }
+  catch (e) { $('ticketView').innerHTML = `<p class="danger">${esc(e.data?.detail || e.message)}</p>`; }
+};
+
+$('btnHelp').onclick = async () => {
+  try {
+    const r = await http('/api/help-resources', { auth: false });
+    $('helpView').innerHTML = r.map(h => `<div class="msg"><b>${esc(h.name)}</b><br><span class="hint">${esc(h.description)}</span><br>${h.phone ? `☎ <a style="color:var(--accent)" href="tel:${esc(h.phone)}">${esc(h.phone)}</a> · ` : ''}${h.hours ? esc(h.hours) : ''}</div>`).join('');
+  } catch (e) { $('helpView').innerHTML = `<p class="danger">${esc(e.message)}</p>`; }
+};
+
+// ---------------- PETUGAS ----------------
+$('btnLogin').onclick = async () => {
+  try {
+    const body = { username: $('lUser').value, password: $('lPass').value };
+    if ($('lTotp').value) body.totp_code = $('lTotp').value;
+    const r = await http('/api/auth/login', { method: 'POST', json: body, auth: false });
+    token = r.access_token; role = r.role;
+    $('loginState').textContent = `login OK · ${r.username} (${r.role}) · ${r.expires_in}s`;
+    $('officerArea').style.display = 'block';
+    $('btnList').click();
+  } catch (e) { $('loginState').textContent = 'gagal: ' + (e.data?.detail || e.message); }
+};
+
+$('btnList').onclick = async () => {
+  try {
+    const p = new URLSearchParams({ limit: '100' });
+    if ($('fUrgency').value) p.set('urgency', $('fUrgency').value);
+    if ($('fStatus').value) p.set('status', $('fStatus').value);
+    if ($('fQ').value) p.set('q', $('fQ').value);
+    if ($('fLoc').value) p.set('location', $('fLoc').value);
+    const r = await http('/api/officer/reports?' + p.toString());
+    if (!r.items.length) { $('listOut').innerHTML = '<p class="hint">Tidak ada laporan.</p>'; return; }
+    const rows = r.items.map(i => `<tr class="clickable" data-id="${esc(i.id)}">
+      <td>${esc(i.ticket_code)}${i.ai_failed ? ' <span class="pill">AI gagal</span>' : ''}</td>
+      <td><span class="badge ${esc(i.urgency_final)}">${esc(i.urgency_final)}</span></td>
+      <td>${esc(i.status)}</td><td>${esc(i.category)}</td><td>${esc(i.location || '-')}</td>
+      <td>${i.waiting_hours}h</td></tr>`).join('');
+    $('listOut').innerHTML = `<p class="hint">total ${r.total} · urutan MERAH dulu</p><table><thead><tr><th>Tiket</th><th>Urgensi</th><th>Status</th><th>Kategori</th><th>Lokasi</th><th>SLA</th></tr></thead><tbody>${rows}</tbody></table>`;
+    $('listOut').querySelectorAll('tr.clickable').forEach(tr => tr.onclick = () => openDetail(tr.dataset.id));
+  } catch (e) { $('listOut').innerHTML = `<p class="danger">${esc(e.data?.detail || e.message)}</p>`; }
+};
+
+async function openDetail(id) {
+  currentId = id;
+  try {
+    const d = await http('/api/officer/reports/' + id);
+    const atts = (d.attachments || []).map(a => `<div class="msg"><a style="color:var(--accent)" href="#" data-att="${esc(a.id)}">📎 ${esc(a.filename_random)}</a> <span class="hint">(${esc(a.mime)}, ${a.size} B)</span></div>`).join('') || '<p class="hint">Tidak ada lampiran.</p>';
+    const notes = (d.notes || []).map(n => `<div class="msg">🗒 ${esc(n.note)} <span class="hint">${esc(new Date(n.created_at).toLocaleString())}</span></div>`).join('') || '<p class="hint">Belum ada catatan.</p>';
+    const msgs = (d.messages || []).map(m => `<div class="msg ${esc(m.sender)}"><b>${esc(m.sender)}</b> · ${esc(new Date(m.created_at).toLocaleString())}<br>${esc(m.body)}</div>`).join('') || '<p class="hint">Belum ada pesan.</p>';
+    $('detailCard').style.display = 'block';
+    $('detailCard').innerHTML = `
+      <h2>Detail ${esc(d.ticket_code)} — <span class="badge ${esc(d.urgency_final)}">${esc(d.urgency_final)}</span></h2>
+      <p>${[d.status, d.category, d.location || 'lokasi -', 'kontak: ' + (d.contact_available ? 'tersedia (terkunci)' : 'tidak ada')].map(x => `<span class="pill">${esc(x)}</span>`).join('')}</p>
+      <div class="grid2">
+        <div>
+          <label>Ringkasan</label><p>${esc(d.summary)}</p>
+          <label>Rationale AI</label><p class="hint">${esc(d.urgency_rationale)}</p>
+          <label>Teks tersensor</label><p>${esc(d.sanitized_text)}</p>
+          <label>Lampiran</label>${atts}
+        </div>
+        <div>
+          <label>Catatan internal</label>${notes}
+          <textarea id="newNote" placeholder="Tambah catatan..."></textarea>
+          <button class="act ghost" id="btnNote">Tambah Catatan</button>
+          <label>Chat ke pelapor</label>${msgs}
+          <input id="newMsg" placeholder="Kirim pesan ke pelapor..." />
+          <button class="act ghost" id="btnOMsg">Kirim Pesan</button>
+        </div>
+      </div>
+      <hr style="border-color:var(--line);margin:16px 0;" />
+      <div class="row">
+        <div><label>Ubah status</label><select id="upStatus"><option>MENUNGGU_TIM</option><option>SEDANG_DIDAMPINGI</option><option>SELESAI</option></select></div>
+        <div><label>Ubah urgensi</label><select id="upUrgency"><option>HIJAU</option><option>KUNING</option><option>MERAH</option></select></div>
+        <div><label>Alasan urgensi (wajib)</label><input id="upReason" placeholder="Alasan perubahan..." /></div>
+        <div style="flex:0;"><button class="act" id="btnStatus">Set Status</button></div>
+        <div style="flex:0;"><button class="act" id="btnUrgency">Set Urgensi</button></div>
+      </div>
+      ${role === 'ADMIN' ? `
+      <hr style="border-color:var(--line);margin:16px 0;" />
+      <div class="danger">⚠️ EMERGENCY OVERRIDE (ADMIN) — membuka teks asli & kontak pelapor. Aksi ini DICATAT di audit log.</div>
+      <div class="row">
+        <div><label>PIN</label><input id="ovPin" type="password" /></div>
+        <div><label>Konfirmasi PIN</label><input id="ovPin2" type="password" /></div>
+        <div><label>Alasan (min 20 char)</label><input id="ovReason" placeholder="Alasan darurat..." /></div>
+        <div style="flex:0;"><button class="act" id="btnOverride">Override</button></div>
+      </div>
+      <div id="ovOut"></div>` : '<p class="hint">Override hanya untuk ADMIN.</p>'}
+    `;
+    $('btnNote').onclick = async () => { await http(`/api/officer/reports/${id}/notes`, { method: 'POST', json: { note: $('newNote').value } }); openDetail(id); };
+    $('btnOMsg').onclick = async () => { await http(`/api/officer/reports/${id}/messages`, { method: 'POST', json: { body: $('newMsg').value } }); openDetail(id); };
+    $('btnStatus').onclick = async () => { await http(`/api/officer/reports/${id}/status`, { method: 'PATCH', json: { status: $('upStatus').value } }); openDetail(id); };
+    $('btnUrgency').onclick = async () => { await http(`/api/officer/reports/${id}/urgency`, { method: 'PATCH', json: { urgency: $('upUrgency').value, reason: $('upReason').value } }); openDetail(id); };
+    $('detailCard').querySelectorAll('[data-att]').forEach(a => a.onclick = async (ev) => {
+      ev.preventDefault();
+      const res = await fetch(api() + `/api/officer/reports/${id}/attachments/${a.dataset.att}`, { headers: { Authorization: 'Bearer ' + token } });
+      const blob = await res.blob(); window.open(URL.createObjectURL(blob), '_blank');
+    });
+    if (role === 'ADMIN') $('btnOverride').onclick = async () => {
+      try {
+        const r = await http(`/api/officer/reports/${id}/override`, { method: 'POST', json: { pin: $('ovPin').value, confirm_pin: $('ovPin2').value, reason: $('ovReason').value } });
+        $('ovOut').innerHTML = `<div class="danger" style="margin-top:10px;"><b>Kontak:</b> ${esc(r.contact || '(tidak ada)')}<br><b>Teks asli:</b><br>${esc(r.original_text)}<br><br><i>${esc(r.message)}</i></div>`;
+      } catch (e) { $('ovOut').innerHTML = `<p class="danger">${esc(e.data?.detail || e.message)}</p>`; }
+    };
+  } catch (e) { $('detailCard').innerHTML = `<p class="danger">${esc(e.data?.detail || e.message)}</p>`; }
+}
+
+$('btnStats').onclick = async () => {
+  try {
+    const s = await http('/api/officer/stats');
+    const f = (arr, k) => arr.map(x => `${x[k]}=${x.count}`).join(', ');
+    $('statsOut').innerHTML = `<p class="pill">total ${s.total_reports}</p><p class="pill">status: ${f(s.by_status,'key')}</p><p class="pill">urgensi: ${f(s.by_urgency,'key')}</p><p class="pill">rata2 respons: ${s.average_first_response_hours ?? '-'} jam</p><p class="pill">AI gagal: ${s.ai_failed_count}</p>`;
+  } catch (e) { $('statsOut').innerHTML = `<p class="danger">${esc(e.message)}</p>`; }
+};
+
+$('btnPatterns').onclick = async () => {
+  try {
+    const p = await http('/api/officer/patterns');
+    $('statsOut').innerHTML = p.length ? `<table><thead><tr><th>Hash terlapor</th><th>Jml</th><th>Tiket</th><th>Kategori</th></tr></thead><tbody>${p.map(x => `<tr><td>${esc(x.perpetrator_hash.slice(0,12))}…</td><td>${x.report_count}</td><td>${esc(x.ticket_codes.join(', '))}</td><td>${esc(x.categories.join(', '))}</td></tr>`).join('')}</tbody></table>` : '<p class="hint">Tidak ada terlapor berulang.</p>';
+  } catch (e) { $('statsOut').innerHTML = `<p class="danger">${esc(e.message)}</p>`; }
+};
+
+$('btnAudit').onclick = async () => {
+  try {
+    const a = await http('/api/officer/audit-logs?limit=500');
+    $('statsOut').innerHTML = `<table><thead><tr><th>Waktu</th><th>Aksi</th><th>Officer</th><th>Report</th><th>Detail</th></tr></thead><tbody>${a.map(x => `<tr><td>${esc(new Date(x.created_at).toLocaleString())}</td><td>${esc(x.action)}</td><td>${esc((x.officer_id||'-').slice(0,8))}</td><td>${esc((x.report_id||'-').slice(0,8))}</td><td><code>${esc(JSON.stringify(x.detail))}</code></td></tr>`).join('')}</tbody></table>`;
+  } catch (e) { $('statsOut').innerHTML = `<p class="danger">${esc(e.data?.detail || e.message)}</p>`; }
+};
+
+loadProfile();
+</script>
+</body>
+</html>

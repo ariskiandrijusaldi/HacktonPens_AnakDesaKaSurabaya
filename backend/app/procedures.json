@@ -1,0 +1,42 @@
+{
+  "title": "Prosedur Pelaporan Kekerasan Seksual",
+  "intro": "Satgas PPKS kampus menerima laporan dugaan kekerasan seksual secara rahasia dan berpihak pada korban. Laporan dapat disampaikan secara anonim tanpa perlu memberikan identitas atau kontak. Berikut tahapan dan ketentuannya.",
+  "steps": [
+    { "order": 1, "title": "Sampaikan laporan", "description": "Isi formulir pelaporan daring secara anonim. Tuliskan kronologi, lokasi umum, dan lampiran pendukung bila ada. Kamu boleh tetap anonim dan hanya memberikan kontak jika bersedia dihubungi." },
+    { "order": 2, "title": "Terima kode tiket", "description": "Sistem memberikan kode tiket (format PPKS-XXXXXX-XXXXXX). Simpan kode ini untuk memantau status dan berkomunikasi dengan Satgas tanpa mengungkap identitas." },
+    { "order": 3, "title": "Triase awal", "description": "Laporan dianalisis otomatis untuk menentukan tingkat urgensi (MERAH/KUNING/HIJAU). Laporan prioritas MERAH langsung dinotifikasikan ke Satgas untuk penanganan cepat." },
+    { "order": 4, "title": "Verifikasi & pendampingan", "description": "Satgas menelaah laporan dan, bila pelapor bersedia, menghubungi untuk klarifikasi serta menawarkan pendampingan psikologis dan/atau hukum. Laporan terkait terlapor yang sama dapat dianalisis sebagai pola pengulangan." },
+    { "order": 5, "title": "Tindak lanjut", "description": "Satgas menentukan langkah: konseling, mediasi atas persetujuan korban, pemeriksaan internal, atau pendampingan menuju proses formal/pidana." },
+    { "order": 6, "title": "Pemantauan & penyelesaian", "description": "Pelapor memantau status (MENUNGGU_TIM -> SEDANG_DIDAMPINGI -> SELESAI) dan tetap dapat berkomunikasi lewat tiket sampai kasus selesai." }
+  ],
+  "requirements": [
+    "Kronologi kejadian (waktu, tempat umum, urutan peristiwa) sedetail yang nyaman dibagikan.",
+    "Lokasi umum kejadian (hindari alamat detail bila tidak diperlukan).",
+    "Lampiran pendukung opsional (foto/screenshot/dokumen) - maksimal 3 file, JPG/PNG/PDF, maksimal 5 MB per file.",
+    "Persetujuan pemrosesan laporan (wajib).",
+    "Kontak hanya bila bersedia dihubungi (opsional)."
+  ],
+  "channels": [
+    { "name": "Formulir daring (anonim)", "kind": "form", "description": "Kanal utama. Tidak perlu login dan tidak perlu memberikan identitas.", "url": "" },
+    { "name": "Pendampingan langsung Satgas PPKS", "kind": "offline", "description": "Datang ke sekretariat Satgas PPKS pada jam layanan bila kamu nyaman bertemu langsung.", "url": "https://kampus.example.ac.id/satgas-ppks" },
+    { "name": "SAPA 129", "kind": "phone", "description": "Kanal eksternal 24 jam untuk situasi darurat atau di luar kampus.", "url": "https://sapa129.kemenpppa.go.id" },
+    { "name": "Panggilan darurat 110", "kind": "phone", "description": "Bila nyawa dalam bahaya langsung, segera hubungi polisi.", "url": "" }
+  ],
+  "commitments": [
+    { "label": "Laporan prioritas MERAH", "value": "Ditindaklanjuti segera dengan notifikasi real-time ke Satgas." },
+    { "label": "Respons awal", "value": "Ditargetkan maksimal 1x24 jam pada hari kerja." },
+    { "label": "Kerahasiaan", "value": "Data sensitif dienkripsi; identitas terlapor disimpan dalam bentuk hash." },
+    { "label": "Anonimitas", "value": "Kamu boleh melapor tanpa memberikan identitas maupun kontak." }
+  ],
+  "legal_basis": [
+    "Permendikbudristek No. 30 Tahun 2021 tentang Pencegahan dan Penanganan Kekerasan Seksual di Lingkungan Perguruan Tinggi.",
+    "UU No. 12 Tahun 2022 tentang Tindak Pidana Kekerasan Seksual (TPKS)."
+  ],
+  "faq": [
+    { "question": "Apakah saya bisa melapor tanpa nama?", "answer": "Ya. Laporan bersifat anonim; kontak hanya diminta bila kamu bersedia dihubungi." },
+    { "question": "Apakah identitas saya bisa dibuka?", "answer": "Teks asli dan kontak disimpan terenkripsi. Hanya petugas ADMIN melalui prosedur darurat (override) dengan alasan yang dicatat di audit log yang dapat membukanya." },
+    { "question": "Apa arti warna urgensi?", "answer": "MERAH = bahaya langsung/ancaman nyawa (ditangani segera); KUNING = kekerasan sudah terjadi dengan tekanan psikologis berat; HIJAU = konsultasi awal atau pelanggaran ringan." },
+    { "question": "Berapa lama saya menerima respons?", "answer": "Respons awal ditargetkan maksimal 1x24 jam pada hari kerja. Situasi darurat ditangani lebih cepat." },
+    { "question": "Bagaimana cara memantau laporan saya?", "answer": "Gunakan kode tiket PPKS-XXXXXX-XXXXXX pada menu Lacak Tiket." }
+  ]
+}
