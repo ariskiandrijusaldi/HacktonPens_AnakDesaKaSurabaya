@@ -22,8 +22,8 @@
         <label for="ticketCode">Kode tiket</label>
         <input id="ticketCode" name="ticket_code"
                value="{{ old('ticket_code', $ticket['ticket_code'] ?? null) }}"
-               placeholder="PPKS-XXXX-XXXX-XXXX" maxlength="19" required>
-        <small class="field-hint">Contoh format: PPKS-AB12-CD34-EF56</small>
+               placeholder="PPKS-XXXXXX-XXXXXX" maxlength="18" required>
+        <small class="field-hint">Contoh format: PPKS-123456-789012</small>
         @error('ticket_code')
             <small class="field-hint form-error-inline">{{ $message }}</small>
         @enderror
@@ -67,7 +67,7 @@
             @forelse ($ticket['messages'] ?? [] as $message)
                 <div class="message-card">
                     <small>{{ $message['sender'] ?? 'Satgas' }}</small>
-                    <p>{{ $message['message'] ?? $message['text'] ?? '' }}</p>
+                    <p>{{ $message['body'] ?? $message['message'] ?? $message['text'] ?? '' }}</p>
                 </div>
             @empty
                 <p class="empty-state">Belum ada pesan dari Satgas.</p>

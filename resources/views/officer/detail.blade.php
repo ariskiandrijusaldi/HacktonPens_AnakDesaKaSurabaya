@@ -78,9 +78,9 @@
                             <p>{{ $report['category'] }}</p>
                         @endif
 
-                        @if (!empty($report['urgency_reason']))
+                        @if (!empty($report['urgency_rationale'] ?? $report['urgency_reason'] ?? null))
                             <h3>Alasan urgensitas</h3>
-                            <p>{{ $report['urgency_reason'] }}</p>
+                            <p>{{ $report['urgency_rationale'] ?? $report['urgency_reason'] }}</p>
                         @endif
 
                         <div class="detail-facts">
@@ -126,7 +126,7 @@
                             @forelse ($messages as $message)
                                 <div class="message-card">
                                     <small>{{ $message['sender'] ?? 'Satgas' }}</small>
-                                    <p>{{ $message['message'] ?? $message['text'] ?? '' }}</p>
+                                    <p>{{ $message['body'] ?? $message['message'] ?? $message['text'] ?? '' }}</p>
                                 </div>
                             @empty
                                 <p class="empty-state">Belum ada pesan untuk pelapor.</p>
@@ -204,10 +204,10 @@
                                 @php $fileId = $file['id'] ?? $file['file_id'] ?? null; @endphp
                                 @if ($id && $fileId)
                                     <a class="table-action" href="{{ route('laporan.lampiran', [$id, $fileId]) }}">
-                                        Unduh {{ $file['filename'] ?? 'lampiran' }} ↘
+                                        Unduh {{ $file['filename_random'] ?? $file['filename'] ?? 'lampiran' }} ↘
                                     </a>
                                 @else
-                                    <p class="field-hint">{{ $file['filename'] ?? 'Lampiran tersedia' }}</p>
+                                    <p class="field-hint">{{ $file['filename_random'] ?? $file['filename'] ?? 'Lampiran tersedia' }}</p>
                                 @endif
                             @endforeach
                         </section>

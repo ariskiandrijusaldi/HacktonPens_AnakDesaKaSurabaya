@@ -68,9 +68,13 @@
                             <tr>
                                 <td>{{ $log['created_at'] ?? $log['time'] ?? '-' }}</td>
                                 <td><span class="status-badge status-progress">{{ $actionLabel }}</span></td>
-                                <td>{{ $log['officer'] ?? '-' }}</td>
+                                <td>{{ $log['officer'] ?? $log['officer_id'] ?? '-' }}</td>
                                 <td>{{ $log['report_id'] ?? $log['ticket_code'] ?? '-' }}</td>
-                                <td>{{ $log['detail'] ?? $log['description'] ?? '-' }}</td>
+                                @php
+                                    $detail = $log['detail'] ?? $log['description'] ?? '-';
+                                    $detail = is_array($detail) ? json_encode($detail, JSON_UNESCAPED_UNICODE) : $detail;
+                                @endphp
+                                <td>{{ $detail }}</td>
                             </tr>
                         @empty
                             <tr>

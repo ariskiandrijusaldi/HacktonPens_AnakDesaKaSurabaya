@@ -31,12 +31,12 @@
             <div class="field-group">
                 <label for="reportText">Ceritakan kejadian yang kamu alami *</label>
                 <textarea id="reportText" name="description" rows="7"
-                          minlength="10" maxlength="20000" required
+                          minlength="20" maxlength="20000" required
                           placeholder="Ceritakan kejadian yang ingin kamu laporkan...">{{ old('description') }}</textarea>
                 @error('description')
                     <small class="field-hint form-error-inline">{{ $message }}</small>
                 @else
-                    <small class="field-hint">Tulis sedetail yang kamu rasa nyaman. Minimal 10 karakter.</small>
+                    <small class="field-hint">Tulis sedetail yang kamu rasa nyaman. Minimal 20 karakter.</small>
                 @enderror
             </div>
 
@@ -87,9 +87,9 @@
                 <div class="upload-box">
                     <span class="upload-symbol" aria-hidden="true">↑</span>
                     <strong>Pilih file pendukung</strong>
-                    <small>JPG, PNG, WEBP, PDF atau MP4. Maksimal 5 MB per file.</small>
+                    <small>JPG, PNG, atau PDF. Maksimal 5 MB per file.</small>
                     <input id="attachments" name="attachments[]" type="file"
-                           accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4" multiple>
+                           accept=".jpg,.jpeg,.png,.pdf" multiple>
                 </div>
                 @error('attachments.*')
                     <small class="field-hint form-error-inline">{{ $message }}</small>

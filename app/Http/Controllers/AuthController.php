@@ -28,11 +28,11 @@ class AuthController extends Controller
             $response = Http::acceptJson()
                 ->timeout(15)
                 ->post(
-                    rtrim(config('services.campuscare.url'), '/').'/officer/login',
+                    rtrim(config('services.campuscare.url'), '/').'/auth/login',
                     [
                         'username' => $validated['username'],
                         'password' => $validated['password'],
-                        'two_factor_code' => $validated['two_factor_code'] ?? null,
+                        'totp_code' => $validated['two_factor_code'] ?? null,
                     ]
                 );
 
@@ -65,7 +65,10 @@ class AuthController extends Controller
             $request->session()->regenerate();
             session([
                 'campuscare_token' => $token,
-                'campuscare_user' => $data['user'] ?? [],
+                'campuscare_user' => [
+                    'username' => $data['username'] ?? null,
+                    'role' => strtoupper((string) ($data['role'] ?? '')),
+                ],
             ]);
 
             return redirect()->route('dasbor');
@@ -80,21 +83,8 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $token = session('campuscare_token');
-
-        if ($token) {
-            try {
-                Http::withToken($token)
-                    ->timeout(5)
-                    ->post(
-                        rtrim(config('services.campuscare.url'), '/').
-                        '/officer/logout'
-                    );
-            } catch (\Throwable $e) {
-                report($e);
-            }
-        }
-
+        // JWT bersifat stateless di backend, tidak ada endpoint logout.
+        // Cukup hapus sesi lokal.
         session()->forget(['campuscare_token', 'campuscare_user']);
         $request->session()->invalidate();
         $request->session()->regenerateToken();

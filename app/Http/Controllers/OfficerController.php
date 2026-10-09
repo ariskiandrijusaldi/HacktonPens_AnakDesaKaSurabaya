@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Client\Response as ClientResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -34,7 +35,7 @@ class OfficerController extends Controller
         return $this->api($request)->patch($this->base().$path, $data);
     }
 
-    private function result(Request $response)
+    private function result(ClientResponse $response)
     {
         if (! $response->successful()) {
             abort($response->status() === 404 ? 404 : 502,
@@ -73,7 +74,7 @@ class OfficerController extends Controller
     public function updateStatus(Request $request, string $id)
     {
         $data = $request->validate([
-            'status' => ['required', 'string', 'max:50'],
+            'status' => ['required', 'in:MENUNGGU_TIM,SEDANG_DIDAMPINGI,SELESAI'],
         ]);
 
         $this->result(
@@ -108,18 +109,55 @@ class OfficerController extends Controller
     public function assign(Request $request, string $id)
     {
         $data = $request->validate([
-            'assigned_to' => ['required', 'string', 'max:100'],
+            'assigned_to' => ['nullable', 'string', 'max:100'],
         ]);
+
+        $officerId = null;
+
+        if (! empty($data['assigned_to'])) {
+            $officerId = $this->resolveOfficerId($request, $data['assigned_to']);
+
+            if ($officerId === null) {
+                return back()->withErrors([
+                    'assigned_to' => 'Petugas dengan nama tersebut tidak ditemukan.',
+                ]);
+            }
+        }
 
         $this->result(
             $this->patch(
                 $request,
                 '/officer/reports/'.rawurlencode($id).'/assign',
-                $data
+                ['officer_id' => $officerId]
             )
         );
 
         return back()->with('success', 'Petugas berhasil ditugaskan.');
+    }
+
+    /**
+     * Ubah nama/username petugas menjadi officer_id yang dipakai backend.
+     */
+    private function resolveOfficerId(Request $request, string $value): ?string
+    {
+        $officers = $this->result($this->get($request, '/officer/officers'));
+        $officers = is_array($officers) ? $officers : [];
+
+        foreach ($officers as $officer) {
+            if (! is_array($officer)) {
+                continue;
+            }
+
+            if (($officer['id'] ?? null) === $value) {
+                return $value;
+            }
+
+            if (strcasecmp((string) ($officer['username'] ?? ''), $value) === 0) {
+                return $officer['id'];
+            }
+        }
+
+        return null;
     }
 
     public function addNote(Request $request, string $id)
@@ -149,7 +187,7 @@ class OfficerController extends Controller
             $this->post(
                 $request,
                 '/officer/reports/'.rawurlencode($id).'/messages',
-                $data
+                ['body' => $data['message']]
             )
         );
 
@@ -159,7 +197,7 @@ class OfficerController extends Controller
     public function statistics(Request $request)
     {
         $stats = $this->result(
-            $this->get($request, '/officer/statistics')
+            $this->get($request, '/officer/stats')
         );
 
         return view('officer.statistik', compact('stats'));
@@ -181,7 +219,7 @@ class OfficerController extends Controller
         ]);
 
         $audit = $this->result(
-            $this->get($request, '/officer/audit', $filters)
+            $this->get($request, '/officer/audit-logs', $filters)
         );
 
         return view('officer.audit', compact('audit', 'filters'));
@@ -204,10 +242,10 @@ class OfficerController extends Controller
 
         $response = $this->api($request)->post(
             $this->base().'/officer/reports/'.
-            rawurlencode($id).'/override-identity',
+            rawurlencode($id).'/override',
             [
                 'pin' => $data['pin'],
-                'pin_confirmation' => $data['pin_confirmation'],
+                'confirm_pin' => $data['pin_confirmation'],
                 'reason' => $data['reason'],
             ]
         );

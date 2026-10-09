@@ -17,7 +17,7 @@ class TicketController extends Controller
         $validated = $request->validate([
             'ticket_code' => [
                 'required',
-                'regex:/^PPKS-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/',
+                'regex:/^PPKS-\d{6}-\d{6}$/',
             ],
         ]);
 
@@ -62,7 +62,7 @@ class TicketController extends Controller
         $validated = $request->validate([
             'ticket_code' => [
                 'required',
-                'regex:/^PPKS-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/',
+                'regex:/^PPKS-\d{6}-\d{6}$/',
             ],
             'message' => ['required', 'string', 'max:2000'],
         ]);
@@ -73,7 +73,7 @@ class TicketController extends Controller
                 ->post(
                     rtrim(config('services.campuscare.url'), '/').
                     '/tickets/'.rawurlencode($validated['ticket_code']).'/messages',
-                    ['message' => $validated['message']]
+                    ['body' => $validated['message']]
                 );
 
             if (! $response->successful()) {

@@ -5,7 +5,7 @@
 @section('content')
 @php
     $stats = $stats ?? [];
-    $total = (int) ($stats['total'] ?? 0);
+    $total = (int) ($stats['total_reports'] ?? $stats['total'] ?? 0);
     $byStatus = $stats['by_status'] ?? [];
     $byUrgency = $stats['by_urgency'] ?? [];
     $byCategory = $stats['by_category'] ?? [];
@@ -21,7 +21,7 @@
     $counts = function (array $rows) use ($total) {
         $out = [];
         foreach ($rows as $row) {
-            $key = $row['key'] ?? null;
+            $key = $row['key'] ?? $row['category'] ?? null;
             $n = (int) ($row['count'] ?? $row['total'] ?? 0);
             if ($key !== null) { $out[$key] = $n; }
         }
