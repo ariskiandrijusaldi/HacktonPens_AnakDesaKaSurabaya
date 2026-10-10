@@ -51,6 +51,9 @@ Route::middleware('cc.officer')
         Route::get('/', [OfficerController::class, 'dashboard'])
             ->name('dasbor');
 
+        Route::get('/laporan', [OfficerController::class, 'index'])
+            ->name('laporan');
+
         Route::get('/laporan/{id}', [OfficerController::class, 'detail'])
             ->name('laporan.detail');
 

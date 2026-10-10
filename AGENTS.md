@@ -1,55 +1,108 @@
-# CampusCare Frontend (Laravel 13)
+# Digital Worker — Hackathon Repo (CampusCare / Satgas PPKS)
 
-Frontend untuk sistem pelaporan kekerasan seksual anonim. UI: Blade + Vite + Tailwind CSS v4. Real API adalah backend **FastAPI terpisah** (repo/branch lain), bukan di repo ini (`composer.json` hanya menyertakan Laravel). Prasyarat: PHP 8.2+ (`composer.json` minta ^8.3), Composer, Node 20+, npm.
+Anonymous campus sexual-violence reporting system. The working tree is a messy merge of
+several half-finished branches — **trust the files on disk, not the READMEs**. UI text is Indonesian.
 
-> **WARNING — repo sedang dalam migrasi.** `routes/web.php` + `app/Http/Controllers/*` saat ini mengarah ke **server-side proxy** (Laravel memanggil FastAPI via `Http` ke `config('services.campuscare.url')`). README.md masih mendeskripsikan arsitektur lama ("browser panggil FastAPI langsung via `VITE_API_BASE_URL`"). **Percaya kode, bukan README.** Dua pola view/JS ini hidup berdampingan di working tree; jangan hapus yang "legacy" sampai migrasi selesai.
+## Repo state & hazards
+- On branch `fitur-ai` (3 commits ahead of `origin/fitur-ai`), plus an uncommitted
+  in-progress officer-dashboard rework — trust the working tree, not HEAD. The old in-progress
+  merge is resolved; commit `e7f4d6a` fixed the Laravel↔FastAPI proxy contract. Other branches:
+  `main`, `fitur-backend`, `fitur-frontend`.
+- `backup-perubahan.patch` (untracked) is a leftover combined merge diff.
+- `HacktonPens_AnakDesaKaSurabaya/` is an accidental embedded git repo staged as a gitlink
+  (mode 160000, no `.gitmodules`); a fresh clone gets an empty dir. Ignore it.
+- Root `README.md` is the stock Laravel README. Endpoint source of truth is `backend/README.md`.
 
-## Setup & menjalankan
+## Three runtimes (don't confuse them)
+- **Laravel (repo root):** Blade + Vite + Tailwind v4 on :8000 (`php artisan serve`).
+  `routes/web.php` is fully wired to `app/Http/Controllers/*`, which are **server-side proxies**
+  to FastAPI via `config('services.campuscare.url')`. Auth = server session (`campuscare_token`,
+  `campuscare_user`); middleware aliases `cc.officer` / `cc.admin` in `bootstrap/app.php`.
+- **`backend/` FastAPI (the real reporting backend, Python 3.11+):** run from inside `backend/` →
+  `uvicorn app.main:app --reload` (default :8000 **collides with Laravel**). On this repo's dev box
+  the backend is actually launched with `--port 8001` — trust the running process, not the default,
+  and always point `CAMPUSCARE_URL` at the port uvicorn actually bound.
+  Routers mount under `/api` (`/api/reports`, `/api/auth/login`, `/api/officer/*` on JWT).
+  SQLite `backend/ppks.db`; tables via `create_all` at startup, so schema changes require
+  deleting `ppks.db`. Officers `admin`/`anggota` are auto-seeded at startup from
+  `ADMIN_PASSWORD`/`MEMBER_PASSWORD` in `backend/.env` (empty → login fails). Tests: `pytest -q`
+  (`tests/conftest.py` sets env before any import, monkeypatches Gemini, no network).
+- **`ai-python/` (Gemini voice/text prototype):** separate FastAPI, run from inside `ai-python/` →
+  `uvicorn api:app --port 8001` (imports `from ai import analyze`, so cwd matters). Its own docs say
+  `--port 8001` too — collides with the live backend on this box, so pick a free port.
+- `dummy-frontend/index.html` is a static mock.
 
+Root `requirements.txt` / `requirements-python.txt` list **Django** and are stale decoys. Real deps:
+`backend/requirements.txt` (FastAPI) and `ai-python/requirements.txt` (google-genai).
+
+## CAMPUSCARE_URL trap
+Every backend endpoint lives under `/api` — the suffix is **mandatory**; `config/services.php`
+defaults to `http://localhost:8001/api`. The backend port is **not fixed**: uvicorn's default :8000
+collides with Laravel's `artisan serve` :8000, so it may be launched on another port. On this repo's
+dev box the backend runs on `--port 8001`; if you point `CAMPUSCARE_URL` at the wrong port, every
+proxy 404s or times out and the officer login silently loops back to `/masuk`. Verify with
+`Get-NetTCPConnection -State Listen -LocalPort *` before assuming a port, and test
+`POST {url}/api/auth/login` once before touching anything else.
+
+## Laravel ↔ backend contract (aligned since e7f4d6a)
+- Public form uses `description` + `attachments[]`; `ReportController` maps them to multipart
+  fields `text` (min 20 chars) + `files`, plus `victim_wish`, `consent`, optional `contact`/`location`
+  — matching backend `/api/reports` exactly. Keep these field names in sync.
+- Other proxies: `/auth/login` (token+role stored in session), `/tickets/{ticket_code}`,
+  `/tickets/{ticket_code}/messages`, `/help-resources`, and `/officer/*` for the dashboard
+  (`OfficerController` forwards `session('campuscare_token')` as Bearer).
+- Enums must match backend `app/schemas.py`: status `MENUNGGU_TIM`/`SEDANG_DIDAMPINGI`/`SELESAI`,
+  urgency `MERAH`/`KUNING`/`HIJAU`, role `ADMIN`/`ANGGOTA`.
+
+## Commands
+Laravel (repo root):
 ```sh
 composer install
-npm install            # .npmrc set: ignore-scripts=true
+npm install                 # .npmrc sets ignore-scripts=true
 copy .env.example .env
 php artisan key:generate
-
-npm run dev            # Vite watcher (atau npm run build utk produksi)
-php artisan serve      # http://127.0.0.1:8000  (FastAPI di :8001)
+npm run build               # required after editing any Vite input or CSS
+php artisan serve           # :8000
+php artisan test --filter=Name   # single test; `composer test` = config:clear + artisan test
+vendor/bin/pint             # laravel/pint installed; no pint.json → default preset
 ```
+Only example tests exist; no CI, no JS lint/typecheck.
 
-Alternatif: `composer setup` (setup penuh + migrate), `composer dev` (= `php artisan dev`).
-
-## Verifikasi / lint / test
-
+`backend/`:
 ```sh
-npm run build          # pastikan semua entry JS/CSS terkompilasi
-php artisan route:list # route view-only/controller terdaftar
-composer test          # = config:clear + artisan test (PHPUnit, sqlite :memory:)
-vendor/bin/pint        # formatter PHP (tidak ada pint.json → preset default)
+python -m venv .venv; .\.venv\Scripts\Activate.ps1   # Windows
+pip install -r requirements.txt
+python generate_keys.py     # prints keys → put in backend/.env
+copy .env.example .env
+uvicorn app.main:app --reload
+python seed_demo.py         # ~8 demo reports
+pytest -q
 ```
 
-- Test tunggal: `php artisan test --filter=...` (PHPUnit via `tests/`; hanya example test saat ini).
-- Tidak ada linter/typecheck JS, tidak ada CI (`.github/` kosong).
+## Frontend conventions
+- Vite entries are **explicit** in `vite.config.js` (`resources/js/pages/*.js`); a new page JS must
+  be added there. `resources/js/{campuscare.js,auth.js}` and legacy `resources/js/api/*` are not entries.
+- Routed views: public `lapor`, `ticket`, `bantuan`, `layouts/{home,masuk}`; officer
+  `officer/{landing,laporan,detail,statistik,pola,audit}` (landing/laporan are the wired new
+  dashboard views, still untracked). Unwired duplicates: legacy `officer/dasbor.blade.php`, new
+  `officer/{dashboard,index}.blade.php` (also untracked), and the whole `pages/{public,officer}/*`
+  set — don't delete them yet.
+- `resources/js/pages/*.js` are Vite entries, but they are `@vite`'d only by the *unwired*
+  `pages/{public,officer}/*` views; the live pages are server-rendered Blade with inline JS /
+  `app.js`. Editing a `pages/*.js` file won't change the running pages.
+- `layouts/app.blade.php` loads `resources/css/campuscare.css`; `layouts/officer.blade.php` loads
+  `app.css` + `app.js`. Quirk: `statistik`/`pola`/`audit` views extend `layouts.app` (public layout).
+- Sensitive data (reports, contacts): always `{{ }}` / `textContent`, never `{!! !!}`, never
+  `console.log`, never in URLs/query.
+- `OfficerController` strips `contact`/`original_text` from ordinary detail responses; only the
+  ADMIN-only override endpoint returns them (behind PIN, audit-logged).
 
-## Kondisi broken saat ini (wajib dibaca sebelum `php artisan` apa pun)
+## backend/ privacy rules (don't regress)
+Original report text and contact are Fernet-encrypted; perpetrator names are HMAC'd (never plaintext);
+no IP/User-Agent columns; attachments validated by magic bytes, re-encoded to strip EXIF, and stored
+outside the public web root; public endpoints return uniform 404 for bad tickets. Keep
+`original_text` / `contact` out of logs.
 
-1. **`bootstrap/app.php` fatal error.** `use Illuminate\Foundation\Configuration\Middleware` diimport 2x (baris 5 & 9), dan pemanggilan `$middleware->alias([...])` berada di top-level padahal `$middleware` hanya tersedia di dalam closure `withMiddleware()`. Semua perintah `php artisan` gagal sampai ini diperbaiki: hapus import kembar, pindahkan `$middleware->alias(['cc.officer' => ..., 'cc.admin' => ...])` ke dalam `->withMiddleware(function (Middleware $middleware) {...})`.
-2. **`config('services.campuscare.url')` belum terdefinisi.** Abstract class `AppServiceProvider`/`config/services.php` tidak punya kunci `campuscare`; semua controller memanggilnya. Tambahkan `'campuscare' => ['url' => env('CAMPUSCARE_URL', 'http://localhost:8001')]` di `config/services.php` (+ `.env`).
-3. **File/class mismatch:** `app/Http/Controllers/EnsureCampusCareOfficer.php` berisi `class CampusCareController` (nama file tidak cocok dengan class → PSR-4 autoload gagal, route `use App\Http\Controllers\CampusCareController` error). Middleware asli ada di `app/Http/Middleware/EnsureCampusCareOfficer.php` & `EnsureCampusCareAdmin.php`.
-4. **`layouts/app.blade.php`** me-link `asset('css/campuscare.css')` yang tidak ada di `public/` (sumber: `resources/css/campurcare.css`, nama typo). Halaman belum ke-styling.
-5. **`resources/views/layouts/home.blade.php`** diawali literal fence markdown (```` ```blade ````) — bersihkan.
-
-## Arsitektur view & JS (dua pola)
-
-- **Aktif (proxy server-side):** view `lapor`, `ticket`, `bantuan`, `officer/*`, `layouts/{app,home,masuk}`; dikemudi `app/Http/Controllers/{Report,Ticket,Auth,Officer,CampusCare}Controller.php`. Auth pakai **session server** (`campuscare_token`, `campuscare_user`), token JWT tidak di `sessionStorage` lagi (README lama usang).
-- **Legacy (masih ada, tidak diroute):** `resources/views/pages/{public,officer}/*` + `resources/js/pages/*.js` + `resources/js/api/*` (fetch langsung ke `VITE_API_BASE_URL`). Masih terdaftar di `vite.config.js`; jangan dirujuk route baru.
-
-## Konvensi frontend
-
-- Entry Vite dieksplisitkan di `vite.config.js` (daftar `input`). Menambah halaman JS baru = tambah entry di sana.
-- Tailwind v4: `@import 'tailwindcss'` + token desain di `@theme` (resources/css/app.css) + `@source '../../storage/framework/views/*.php'` (memindai view terkompilasi).
-- Teks UI & komentar dalam Bahasa Indonesia. Jalankan `npm run build` setelah mengubah `resources/css/app.css`.
-- Data sensitif (laporan, kontak): selalu `{{ }}`/`textContent`, jangan `{!! !!}`, jangan `console.log`, tidak di URL/query.
-
-## Kontrak backend (FastAPI, port 8001)
-
-CORS harus mengizinkan `http://localhost:8000`; backend mengembalikan `data`/`ticket_code`/`access_token` (+ `expires_in`), rate limit `429`. Detail endpoint & SSE ada di README.md "Kontrak API yang Dipakai" & "Kebutuhan Backend" (masih akurat untuk pola baru; frontend sekarang memanggil via controller proxy).
+## Instruction files
+- `CLAUDE.md`: stock Laravel Boost bootstrap; the repo's own bootstrap is `bootstrap/app.php` — ignore it.
+- `opencode.json`: local OpenCode config (provider `cbn-hackathon` via LiteLLM, default `qwen3-coder-flash`).

@@ -1,6 +1,6 @@
 import { initQuickExit } from './lib/exit.js';
 import { setUnauthorizedHandler } from './api/client.js';
-import { clearSession, isAdmin, logout, requireOfficer, getUsername, getRole, watchSession } from './auth.js';
+import { clearSession, getSession, getUsername, getRole, watchSession } from './auth.js';
 import { toastWarning } from './lib/toast.js';
 
 function initDropdowns() {
@@ -96,7 +96,12 @@ function initOfficerHeader() {
         return;
     }
 
-    const username = getUsername();
+    // Alur Laravel memakai session server; identitas petugas disuplai lewat
+    // atribut <body> (layouts/officer.blade.php), bukan sessionStorage.
+    const served = document.body.dataset;
+    const username = served.officerAccount || getUsername();
+    const role = (served.officerRole || getRole() || 'ANGGOTA').toUpperCase();
+
     document.querySelectorAll('[data-officer-name]').forEach((el) => {
         el.textContent = username || 'Petugas';
     });
@@ -104,21 +109,14 @@ function initOfficerHeader() {
         el.textContent = (username || 'P').charAt(0).toUpperCase();
     });
     document.querySelectorAll('[data-role-label]').forEach((el) => {
-        el.textContent = getRole() || 'ANGGOTA';
+        el.textContent = role;
     });
 
-    if (!isAdmin()) {
+    if (role !== 'ADMIN') {
         document.querySelectorAll('[data-admin-only]').forEach((el) => {
             el.remove();
         });
     }
-
-    document.querySelectorAll('[data-logout]').forEach((button) => {
-        button.addEventListener('click', () => {
-            clearSession();
-            logout();
-        });
-    });
 }
 
 export function bootstrap() {
@@ -140,7 +138,9 @@ export function bootstrap() {
 
     const guard = document.body.dataset.guard;
     if (guard === 'officer') {
-        if (requireOfficer()) {
+        // Halaman petugas diamankan di server (cc.officer); jangan redirect
+        // klien memakai sessionStorage yang kosong di alur Laravel.
+        if (getSession()) {
             watchSession({
                 onWarning: () => {
                     toastWarning('Sesi akan berakhir dalam 2 menit. Simpan pekerjaanmu.');

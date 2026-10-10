@@ -16,17 +16,17 @@ class ReportController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'description' => ['required', 'string', 'min:10', 'max:20000'],
-            'victim_wish' => ['required', 'string', 'max:1000'],
+            'description' => ['required', 'string', 'min:20', 'max:20000'],
+            'victim_wish' => ['required', 'string', 'in:KONSULTASI,PENDAMPINGAN,PROSES_FORMAL,BELUM_TAHU'],
             'location' => ['nullable', 'string', 'max:500'],
             'contact' => ['nullable', 'string', 'max:500'],
-            'contact_consent' => ['nullable', 'accepted'],
+            'contact_consent' => ['nullable', 'boolean'],
             'consent' => ['required', 'accepted'],
             'attachments' => ['nullable', 'array', 'max:3'],
             'attachments.*' => [
                 'file',
                 'max:5120',
-                'mimes:jpg,jpeg,png,pdf,mp4',
+                'mimes:jpg,jpeg,png,pdf',
             ],
         ]);
 
@@ -42,18 +42,18 @@ class ReportController extends Controller
         $api = rtrim(config('services.campuscare.url'), '/');
 
         try {
-            $http = Http::acceptJson()->timeout(30);
+            $http = Http::acceptJson()->timeout(30)->asForm();
 
             foreach ($request->file('attachments', []) as $file) {
                 $http->attach(
-                    'attachments[]',
+                    'files',
                     file_get_contents($file->getRealPath()),
                     $file->getClientOriginalName()
                 );
             }
 
             $response = $http->post($api.'/reports', [
-                'description' => $validated['description'],
+                'text' => $validated['description'],
                 'victim_wish' => $validated['victim_wish'],
                 'location' => $validated['location'] ?? null,
                 'contact' => $request->boolean('contact_consent')

@@ -1,0 +1,44 @@
+{
+  "satgas": {
+    "name": "Satgas PPKS Kampus",
+    "description": "Layanan pengaduan dan pendampingan kekerasan seksual di lingkungan kampus.",
+    "phone": "0800-0000-0000",
+    "url": "https://kampus.example.ac.id/satgas-ppks",
+    "hours": "Senin-Jumat 08.00-16.00 WIB"
+  },
+  "sapa129": {
+    "name": "SAPA 129",
+    "description": "Layanan pengaduan kekerasan terhadap perempuan dan anak (Kementerian PPPA).",
+    "phone": "129",
+    "url": "https://sapa129.kemenpppa.go.id",
+    "hours": "24 jam"
+  },
+  "komnas_perempuan": {
+    "name": "Komnas Perempuan",
+    "description": "Komisi Nasional Anti Kekerasan terhadap Perempuan.",
+    "phone": "021-3903963",
+    "url": "https://komnasperempuan.go.id",
+    "hours": "Jam kerja"
+  },
+  "layanan_psikolog": {
+    "name": "Layanan Psikolog Kampus",
+    "description": "Konseling psikologis gratis untuk mahasiswa.",
+    "phone": "0800-1111-2222",
+    "url": "https://kampus.example.ac.id/konseling",
+    "hours": "Senin-Sabtu 08.00-20.00 WIB"
+  },
+  "bantuan_hukum": {
+    "name": "Lembaga Bantuan Hukum (LBH) Surabaya",
+    "description": "Pendampingan hukum bagi korban kekerasan seksual.",
+    "phone": "031-0000000",
+    "url": "https://lbhsurabaya.example.org",
+    "hours": "Senin-Jumat 09.00-17.00 WIB"
+  },
+  "darurat": {
+    "name": "Panggilan Darurat Nasional",
+    "description": "Jika nyawa Anda dalam bahaya langsung, segera hubungi polisi.",
+    "phone": "110",
+    "url": "",
+    "hours": "24 jam"
+  }
+}
