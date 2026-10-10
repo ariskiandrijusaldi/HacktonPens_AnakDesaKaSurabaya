@@ -11,7 +11,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import FileResponse, StreamingResponse
-from sqlalchemy import case, func, or_, select
+from sqlalchemy import case, func, or_, select, update
 from sqlalchemy.orm import Session, selectinload
 from starlette.concurrency import run_in_threadpool
 
@@ -427,40 +427,62 @@ async def stream_reports(
 def stats(
     officer: Officer = Depends(get_current_officer),
     db: Session = Depends(get_db),
+    date_from: datetime | None = Query(None, alias="from"),
+    date_to: datetime | None = Query(None, alias="to"),
 ) -> StatsOut:
-    total = db.scalar(select(func.count()).select_from(Report)) or 0
+    filters = []
+    if date_from is not None:
+        filters.append(Report.created_at >= _ensure_utc(date_from))
+    if date_to is not None:
+        filters.append(Report.created_at <= _ensure_utc(date_to))
 
-    by_status = [
-        KeyCount(key=row[0] or "TIDAK_DIKETAHUI", count=row[1])
-        for row in db.execute(select(Report.status, func.count()).group_by(Report.status)).all()
-    ]
+    def counted() -> Any:
+        stmt = select(func.count()).select_from(Report)
+        return stmt.where(*filters) if filters else stmt
+
+    total = db.scalar(counted()) or 0
+
+    def grouped(column) -> Any:
+        stmt = select(column, func.count()).group_by(column)
+        if filters:
+            stmt = stmt.where(*filters)
+        return db.execute(stmt).all()
+
+    by_status = [KeyCount(key=row[0] or "TIDAK_DIKETAHUI", count=row[1]) for row in grouped(Report.status)]
     by_urgency = [
-        KeyCount(key=row[0] or "TIDAK_DIKETAHUI", count=row[1])
-        for row in db.execute(
-            select(Report.urgency_final, func.count()).group_by(Report.urgency_final)
-        ).all()
+        KeyCount(key=row[0] or "TIDAK_DIKETAHUI", count=row[1]) for row in grouped(Report.urgency_final)
     ]
     by_category = [
-        CategoryStat(category=row[0] or "lainnya", count=row[1])
-        for row in db.execute(select(Report.category, func.count()).group_by(Report.category)).all()
+        CategoryStat(category=row[0] or "lainnya", count=row[1]) for row in grouped(Report.category)
     ]
 
-    responded = db.scalars(select(Report).where(Report.status != "MENUNGGU_TIM")).all()
+    month_expr = func.strftime("%Y-%m", Report.created_at)
+    by_month = [
+        KeyCount(key=row[0] or "TIDAK_DIKETAHUI", count=row[1]) for row in grouped(month_expr)
+    ]
+    by_month.sort(key=lambda item: item.key)
+
+    responded_stmt = select(Report).where(Report.status != "MENUNGGU_TIM")
+    if filters:
+        responded_stmt = responded_stmt.where(*filters)
+    responded = db.scalars(responded_stmt).all()
     if responded:
         hours = [_hours_between(r.created_at, r.updated_at) for r in responded]
         avg = round(sum(hours) / len(hours), 2)
     else:
         avg = None
 
-    ai_failed_count = db.scalar(
-        select(func.count()).select_from(Report).where(Report.ai_failed.is_(True))
-    ) or 0
+    ai_stmt = select(func.count()).select_from(Report).where(Report.ai_failed.is_(True))
+    if filters:
+        ai_stmt = ai_stmt.where(*filters)
+    ai_failed_count = db.scalar(ai_stmt) or 0
 
     return StatsOut(
         total_reports=total,
         by_status=by_status,
         by_urgency=by_urgency,
         by_category=by_category,
+        by_month=by_month,
         average_first_response_hours=avg,
         ai_failed_count=ai_failed_count,
     )
@@ -514,6 +536,70 @@ def list_officers(
 ) -> list[OfficerOut]:
     rows = db.scalars(select(Officer).where(Officer.is_active.is_(True)).order_by(Officer.username)).all()
     return [OfficerOut.model_validate(o) for o in rows]
+
+
+# ------------------------------------------------------------------ Notifikasi
+
+
+@router.get("/notifications")
+def notifications(
+    officer: Officer = Depends(get_current_officer),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    """Notifikasi ringan: balasan pelapor yang belum dibaca + laporan baru (menunggu tim)."""
+    unread = db.scalars(
+        select(FollowUpMessage)
+        .where(FollowUpMessage.sender == "PELAPOR", FollowUpMessage.read.is_(False))
+        .order_by(FollowUpMessage.created_at.desc())
+        .limit(50)
+    ).all()
+    new_reports = db.scalars(
+        select(Report)
+        .where(Report.status == "MENUNGGU_TIM")
+        .order_by(Report.created_at.desc())
+        .limit(50)
+    ).all()
+
+    return {
+        "unread_count": len(unread),
+        "new_count": len(new_reports),
+        "unread_messages": [
+            {
+                "id": m.id,
+                "report_id": m.report_id,
+                "ticket_code": getattr(m.report, "ticket_code", None),
+                "body": m.body,
+                "created_at": m.created_at,
+            }
+            for m in unread
+        ],
+        "new_reports": [
+            {
+                "id": r.id,
+                "ticket_code": r.ticket_code,
+                "urgency_final": r.urgency_final,
+                "category": r.category,
+                "summary": r.summary,
+                "created_at": r.created_at,
+            }
+            for r in new_reports
+        ],
+    }
+
+
+@router.post("/notifications/read")
+def mark_notifications_read(
+    officer: Officer = Depends(get_current_officer),
+    db: Session = Depends(get_db),
+) -> dict[str, bool]:
+    """Tandai semua balasan pelapor sebagai sudah dibaca."""
+    db.execute(
+        update(FollowUpMessage)
+        .where(FollowUpMessage.sender == "PELAPOR", FollowUpMessage.read.is_(False))
+        .values(read=True)
+    )
+    db.commit()
+    return {"ok": True}
 
 
 def _require_report(db: Session, report_id: str) -> Report:

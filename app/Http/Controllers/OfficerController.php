@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Client\Response as ClientResponse;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -37,6 +38,18 @@ class OfficerController extends Controller
 
     private function result(ClientResponse $response)
     {
+        if ($response->status() === 401) {
+            // Token backend kedaluwarsa/tidak valid: bersihkan sesi petugas
+            // dan kembalikan ke halaman masuk agar tidak tampil error 502.
+            session()->forget(['campuscare_token', 'campuscare_expires_at', 'campuscare_user']);
+
+            throw new HttpResponseException(
+                redirect()->route('masuk')->withErrors([
+                    'login' => 'Sesi petugas berakhir. Silakan masuk kembali.',
+                ])
+            );
+        }
+
         if (! $response->successful()) {
             abort($response->status() === 404 ? 404 : 502,
                 'Permintaan ke backend gagal.');
@@ -47,16 +60,36 @@ class OfficerController extends Controller
 
     public function dashboard(Request $request)
     {
-        $filters = $request->only([
-            'status', 'urgency', 'category', 'location',
-            'assigned_to', 'q', 'page',
-        ]);
+        return view('officer.landing');
+    }
+
+    public function index(Request $request)
+    {
+        $allowedStatus = ['MENUNGGU_TIM', 'SEDANG_DIDAMPINGI', 'SELESAI'];
+        $allowedUrgency = ['MERAH', 'KUNING', 'HIJAU'];
+
+        $filters = $request->only(['page', 'q', 'category']);
+
+        if (in_array($request->query('status'), $allowedStatus, true)) {
+            $filters['status'] = $request->query('status');
+        }
+
+        if (in_array($request->query('urgency'), $allowedUrgency, true)) {
+            $filters['urgency'] = $request->query('urgency');
+        }
 
         $reports = $this->result(
             $this->get($request, '/officer/reports', $filters)
         );
 
-        return view('officer.dasbor', compact('reports', 'filters'));
+        // Statistik bersifat suplemen; bila gagal, daftar tetap tampil.
+        try {
+            $stats = $this->result($this->get($request, '/officer/stats'));
+        } catch (\Throwable $e) {
+            $stats = [];
+        }
+
+        return view('officer.laporan', compact('reports', 'stats'));
     }
 
     public function detail(Request $request, string $id)

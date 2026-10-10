@@ -321,6 +321,7 @@ class StatsOut(BaseModel):
     by_status: list[KeyCount]
     by_urgency: list[KeyCount]
     by_category: list[CategoryStat]
+    by_month: list[KeyCount] = Field(default_factory=list)
     average_first_response_hours: float | None
     ai_failed_count: int
 

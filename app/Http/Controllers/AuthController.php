@@ -65,6 +65,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
             session([
                 'campuscare_token' => $token,
+                'campuscare_expires_at' => time() + (int) ($data['expires_in'] ?? 1800),
                 'campuscare_user' => [
                     'username' => $data['username'] ?? null,
                     'role' => strtoupper((string) ($data['role'] ?? '')),
@@ -85,7 +86,7 @@ class AuthController extends Controller
     {
         // JWT bersifat stateless di backend, tidak ada endpoint logout.
         // Cukup hapus sesi lokal.
-        session()->forget(['campuscare_token', 'campuscare_user']);
+        session()->forget(['campuscare_token', 'campuscare_expires_at', 'campuscare_user']);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
