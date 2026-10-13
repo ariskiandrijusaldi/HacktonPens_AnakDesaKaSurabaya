@@ -139,7 +139,7 @@ class GeminiService
             throw new RuntimeException('File audio tidak ditemukan: '.$audioPath);
         }
 
-        $ffmpeg = (new ExecutableFinder())->find('ffmpeg');
+        $ffmpeg = (new ExecutableFinder)->find('ffmpeg');
 
         if ($ffmpeg === null) {
             throw new RuntimeException(
