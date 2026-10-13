@@ -1,2 +1,13 @@
+[project]
+name = "ai-python"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "python-dotenv",
+    "openai",
+]
+
 [tool.vercel]
 entrypoint = "api:app"
