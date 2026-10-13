@@ -1,16 +1,11 @@
 # Digital Worker — Hackathon Repo (CampusCare / Satgas PPKS)
 
-Anonymous campus sexual-violence reporting system. The working tree is a messy merge of
-several half-finished branches — **trust the files on disk, not the READMEs**. UI text is Indonesian.
+Anonymous campus sexual-violence reporting system. The working tree is a messy merge of several half-finished branches — **trust the files on disk, not the READMEs**. UI text is Indonesian.
 
 ## Repo state & hazards
-- On branch `fitur-ai` (3 commits ahead of `origin/fitur-ai`), plus an uncommitted
-  in-progress officer-dashboard rework — trust the working tree, not HEAD. The old in-progress
-  merge is resolved; commit `e7f4d6a` fixed the Laravel↔FastAPI proxy contract. Other branches:
-  `main`, `fitur-backend`, `fitur-frontend`.
+- On branch `fitur-ai` (3 commits ahead of `origin/fitur-ai`), plus an uncommitted in-progress officer-dashboard rework — trust the working tree, not HEAD. The old in-progress merge is resolved; commit `e7f4d6a` fixed the Laravel↔FastAPI proxy contract. Other branches: `main`, `fitur-backend`, `fitur-frontend`.
 - `backup-perubahan.patch` (untracked) is a leftover combined merge diff.
-- `HacktonPens_AnakDesaKaSurabaya/` is an accidental embedded git repo staged as a gitlink
-  (mode 160000, no `.gitmodules`); a fresh clone gets an empty dir. Ignore it.
+- `HacktonPens_AnakDesaKaSurabaya/` is an accidental embedded git repo staged as a gitlink (mode 160000, no `.gitmodules`); a fresh clone gets an empty dir. Ignore it.
 - Root `README.md` is the stock Laravel README. Endpoint source of truth is `backend/README.md`.
 
 ## Three runtimes (don't confuse them)
@@ -103,6 +98,6 @@ no IP/User-Agent columns; attachments validated by magic bytes, re-encoded to st
 outside the public web root; public endpoints return uniform 404 for bad tickets. Keep
 `original_text` / `contact` out of logs.
 
-## Instruction files
-- `CLAUDE.md`: stock Laravel Boost bootstrap; the repo's own bootstrap is `bootstrap/app.php` — ignore it.
-- `opencode.json`: local OpenCode config (provider `cbn-hackathon` via LiteLLM, default `qwen3-coder-flash`).
+## OpenCode Configuration
+- Provider: `cbn-hackathon` via LiteLLM
+- Default model: `qwen3-coder-flash`
